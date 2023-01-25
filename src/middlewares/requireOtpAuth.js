@@ -9,13 +9,15 @@ module.exports =
   (role = [], permission = []) =>
   (req, res, next) => {
     if (
-      !req.headers.authorization ||
-      req.headers.authorization.split(" ")[0] !== "Bearer"
+      // !req.headers.authorization ||
+      !req.body.bearerToken
+      // req.headers.authorization.split(" ")[0] !== "Bearer"
     ) {
       return res.status(401).json({ error: 1, msg: "Unauthorized access" });
     }
 
-    const token = req.headers.authorization.split(" ")[1];
+    // const token = req.headers.authorization.split(" ")[1];
+    const token = req.body.bearerToken;
 
     jwt.verify(token, config.apiSecrect, async (err, payload) => {
       if (err) {

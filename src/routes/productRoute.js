@@ -16,54 +16,67 @@ const requireOtpAuth = require("../middlewares/requireOtpAuth");
 
 const router = express.Router();
 
-router.post("/create", requireAuth(), async (req, res) => {
-  const validationErrors = validationResult(req);
-  if (!validationErrors.isEmpty()) {
-    return res.status(422).json({
-      status: 422,
-      msg: "err",
-      validationErrors: validationErrors.array({ onlyFirstError: true }),
-    });
-  }
-  const {
-    category_id,
-    product_name,
-    product_description,
-    product_price,
-    product_offer_price,
-  } = req.body;
-  const { user_id } = req.user;
-  const file = req.files.product_photo;
-  try {
-    let productDetails;
-    await file.mv("public/images/products/" + file.name, async function (err) {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-      productDetails = await knexdb(tables.product).insert({
-        category_id,
-        product_name,
-        product_description,
-        product_price,
-        product_offer_price,
-        product_photo: file.name,
-        created_by: user_id,
-        updated_by: user_id,
-        updated_at: new Date(),
+router.post(
+  "/create",
+  body("category_id").not().isEmpty().trim().isNumeric(),
+  body("product_name").not().isEmpty().trim(),
+  body("product_description").not().isEmpty().trim(),
+  body("product_price").not().isEmpty().trim(),
+  body("product_offer_price").not().isEmpty().trim(),
+
+  requireAuth(),
+  async (req, res) => {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      return res.status(422).json({
+        status: 422,
+        msg: "err",
+        validationErrors: validationErrors.array({ onlyFirstError: true }),
       });
-      return productDetails;
-    });
-    return res.status(201).json({
-      status: 201,
-      msg: "successfully added",
-      data: productDetails,
-    });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ status: 500, msg: "Try again later" });
+    }
+    const {
+      category_id,
+      product_name,
+      product_description,
+      product_price,
+      product_offer_price,
+    } = req.body;
+    const { user_id } = req.user;
+    const file = req.files.product_photo;
+    try {
+      let productDetails;
+      await file.mv(
+        "public/images/products/" + file.name,
+        async function (err) {
+          if (err) {
+            console.log(err);
+            throw err;
+          }
+          productDetails = await knexdb(tables.product).insert({
+            category_id,
+            product_name,
+            product_description,
+            product_price,
+            product_offer_price,
+            product_photo: file.name,
+            created_by: user_id,
+            updated_by: user_id,
+            updated_at: new Date(),
+          });
+          return productDetails;
+        }
+      );
+      return res.status(201).json({
+        status: 201,
+        msg: "successfully added",
+        data: productDetails,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ status: 500, msg: "Try again later" });
+    }
   }
-});
+);
 
 router.get("/", requireAuth(), async (req, res) => {
   const validationErrors = validationResult(req);

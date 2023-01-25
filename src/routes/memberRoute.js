@@ -136,7 +136,7 @@ router.post(
       max: 10,
     })
     .trim()
-    .escape()
+
     .isMobilePhone(),
   body("otp")
     .not()
@@ -145,8 +145,8 @@ router.post(
       min: 4,
       max: 4,
     })
-    .trim()
-    .escape(),
+    .trim(),
+
   async (req, res) => {
     const validationErrors = validationResult(req);
 
@@ -210,8 +210,9 @@ router.post(
   body("name").not().isEmpty().trim().escape(),
   body("state").not().isEmpty().trim().escape(),
   body("city").not().isEmpty().trim().escape(),
-  body("pincode").not().isEmpty().trim().escape(),
+  body("pincode").not().isEmpty().isNumeric().isLength({ min: 6, max: 6 }),
   body("phone").not().isEmpty().trim().escape().isMobilePhone(),
+  requireAuth(),
   async (req, res) => {
     const validationErrors = validationResult(req);
     if (!validationErrors.isEmpty()) {

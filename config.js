@@ -32,6 +32,7 @@ const config = {
     customer: "rck_customer",
     category: "rck_category",
     cart: "rck_cart",
+    shop_service_product: "rck_shop_service_product",
   },
   debugLog: true,
   rkitConfig: {

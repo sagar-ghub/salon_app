@@ -11,6 +11,7 @@ const categoryRoute = require("./routes/categoryRoute");
 const productRoute = require("./routes/productRoute");
 const serviceRoute = require("./routes/serviceRoute");
 const cartRoute = require("./routes/cartRoute");
+const postalRoute = require("./routes/postalRoute");
 
 const app = express();
 // app. (express.static(path.join(__dirname, "../public")));
@@ -26,6 +27,7 @@ app.use("/category", categoryRoute);
 app.use("/product", productRoute);
 app.use("/service", serviceRoute);
 app.use("/cart", cartRoute);
+app.use("/pincode", postalRoute);
 //for testing
 // const testRoute = require("./routes/testRoute");
 // app.use("/test", testRoute);
