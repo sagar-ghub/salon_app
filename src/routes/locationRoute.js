@@ -17,7 +17,7 @@ const requireOtpAuth = require("../middlewares/requireOtpAuth");
 const router = express.Router();
 
 router.post(
-  "/create",
+  "/createlocation",
   body("location_locality").not().isEmpty().trim(),
   body("location_city").not().isEmpty().trim(),
   body("location_state").not().isEmpty().trim(),
@@ -45,12 +45,15 @@ router.post(
       // user_id,
     } = req.body;
     try {
-      let locationDetails = await knexdb(tables.location).insert({
+      let locationObj = {
         location_locality,
         location_city,
         location_state,
         location_pincode,
-      });
+        created_by: req.user.user_id,
+      };
+
+      let locationDetails = await knexdb(tables.location).insert(locationObj);
 
       return res.status(201).json({
         status: 201,
@@ -64,44 +67,44 @@ router.post(
   }
 );
 
-router.get(
-  "/byshop/:id",
-  param("id").not().isEmpty().isNumeric(),
-  requireAuth(),
-  async (req, res) => {
-    const validationErrors = validationResult(req);
-    if (!validationErrors.isEmpty()) {
-      return res.status(422).json({
-        status: 422,
-        msg: "err",
-        validationErrors: validationErrors.array({ onlyFirstError: true }),
-      });
-    }
-    const { id } = req.params;
+// router.get(
+//   "/byshop/:id",
+//   param("id").not().isEmpty().isNumeric(),
+//   // requireAuth(),
+//   async (req, res) => {
+//     const validationErrors = validationResult(req);
+//     if (!validationErrors.isEmpty()) {
+//       return res.status(422).json({
+//         status: 422,
+//         msg: "err",
+//         validationErrors: validationErrors.array({ onlyFirstError: true }),
+//       });
+//     }
+//     const { id } = req.params;
 
-    try {
-      let results = await knexdb
-        .select("*")
-        .from(tables.location)
-        .where("shop_id", id);
-      // console.log(results);
+//     try {
+//       let results = await knexdb
+//         .select("*")
+//         .from(tables.location)
+//         .where("shop_id", id);
+//       // console.log(results);
 
-      if (results.length == 0) {
-        return res
-          .status(400)
-          .json({ error: 1, msg: "No Location exists for given shop_id" });
-      }
+//       if (results.length == 0) {
+//         return res
+//           .status(400)
+//           .json({ error: 1, msg: "No Location exists for given shop_id" });
+//       }
 
-      return res.status(201).json({
-        status: 201,
-        msg: "success",
-        data: results,
-      });
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json({ status: 500, msg: "Try again later" });
-    }
-  }
-);
+//       return res.status(201).json({
+//         status: 201,
+//         msg: "success",
+//         data: results,
+//       });
+//     } catch (err) {
+//       console.log(err);
+//       return res.status(500).json({ status: 500, msg: "Try again later" });
+//     }
+//   }
+// );
 
 module.exports = router;

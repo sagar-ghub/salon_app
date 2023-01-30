@@ -212,7 +212,7 @@ router.post(
   body("city").not().isEmpty().trim().escape(),
   body("pincode").not().isEmpty().isNumeric().isLength({ min: 6, max: 6 }),
   body("phone").not().isEmpty().trim().escape().isMobilePhone(),
-  requireAuth(),
+
   async (req, res) => {
     const validationErrors = validationResult(req);
     if (!validationErrors.isEmpty()) {
@@ -300,8 +300,7 @@ router.post(
           .status(400)
           .json({ error: 1, msg: "Service name already exists" });
       }
-
-      let serviceDetails = await knexdb(tables.service).insert({
+      let serviceObj = {
         service_name: name,
         user_id: req.user.user_id,
         service_description: description,
@@ -309,10 +308,8 @@ router.post(
         service_duration: duration,
         service_category: category,
         created_by: req.user.user_id,
-        updated_by: req.user.user_id,
-        created_at: new Date(),
-        updated_at: new Date(),
-      });
+      };
+      let serviceDetails = await knexdb(tables.service).insert(serviceObj);
 
       return res.status(201).json({ error: 0, msg: "successfully created" });
     } catch (err) {

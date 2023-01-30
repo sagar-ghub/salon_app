@@ -17,10 +17,14 @@ const requireOtpAuth = require("../middlewares/requireOtpAuth");
 const router = express.Router();
 
 router.post(
-  "/create",
+  "/createcategory",
   requireAuth(),
   body("category_name").not().isEmpty().trim(),
   body("category_description").not().isEmpty().trim(),
+  body("category_gender").not().isEmpty().trim().isNumeric({
+    min: 1,
+    max: 1,
+  }),
   async (req, res) => {
     const validationErrors = validationResult(req);
     if (!validationErrors.isEmpty()) {
@@ -30,7 +34,7 @@ router.post(
         validationErrors: validationErrors.array({ onlyFirstError: true }),
       });
     }
-    const { category_name, category_description } = req.body;
+    const { category_name, category_description, category_gender } = req.body;
     const { user_id } = req.user;
     const file = req.files?.category_photo;
     try {
@@ -43,21 +47,22 @@ router.post(
             console.log(err);
             throw err;
           }
-          categoryDetails = await knexdb(tables.category).insert({
+
+          let categoryObj = {
             category_name,
             category_description,
             category_photo: file.name,
+            category_gender,
             created_by: user_id,
-            updated_by: user_id,
-            updated_at: new Date(),
-          });
+          };
+          categoryDetails = await knexdb(tables.category).insert(categoryObj);
           return categoryDetails;
         }
       );
       return res.status(201).json({
         status: 201,
         msg: "successfully added",
-        data: categoryDetails,
+        data: categoryDetails?.[0],
       });
     } catch (err) {
       console.log(err);

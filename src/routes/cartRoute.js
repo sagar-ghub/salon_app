@@ -17,7 +17,7 @@ const requireOtpAuth = require("../middlewares/requireOtpAuth");
 const router = express.Router();
 
 router.post(
-  "/add",
+  "/addtocart",
   requireAuth(),
   // body("product_id").not().isEmpty().trim().isNumeric(),
   // body("service_id").not().isEmpty().trim().isNumeric(),
@@ -64,17 +64,15 @@ router.post(
         if (checkCart[0].shop_id != shop_id) {
           //delete all entries with the user in cart
           await knexdb(tables.cart).where("user_id", user_id).del();
-
-          let cartDetails1 = await knexdb(tables.cart).insert({
+          let cartObj = {
             user_id,
             product_id: product_id,
             service_id: service_id,
             shop_id,
             product_quantity,
             created_by: user_id,
-            updated_by: user_id,
-            updated_at: new Date(),
-          });
+          };
+          let cartDetails1 = await knexdb(tables.cart).insert(cartObj);
           return res.status(201).json({
             status: 201,
             msg: "successfully added",
@@ -91,17 +89,18 @@ router.post(
         .andWhere("service_id", service_id);
 
       if (results.length !== 0) {
+        let updateCartObj = {
+          product_id: product_id,
+          service_id: service_id,
+          product_quantity: product_quantity,
+          updated_by: user_id,
+          updated_at: new Date(),
+        };
         let updatecart = await knexdb(tables.cart)
           .where("user_id", user_id)
           .andWhere("product_id", product_id)
           .andWhere("service_id", service_id)
-          .update({
-            product_id: product_id,
-            service_id: service_id,
-            product_quantity: product_quantity,
-            updated_by: user_id,
-            updated_at: new Date(),
-          });
+          .update(updateCartObj);
 
         return res.status(201).json({
           status: 201,
@@ -109,17 +108,15 @@ router.post(
           data: updatecart,
         });
       }
-
-      let cartDetails = await knexdb(tables.cart).insert({
+      let cartObj = {
         user_id,
         product_id: product_id,
         service_id: service_id,
         product_quantity,
         shop_id,
         created_by: user_id,
-        updated_by: user_id,
-        updated_at: new Date(),
-      });
+      };
+      let cartDetails = await knexdb(tables.cart).insert(cartObj);
       return res.status(201).json({
         status: 201,
         msg: "successfully added",
