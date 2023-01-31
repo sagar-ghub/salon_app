@@ -33,6 +33,8 @@ const config = {
     category: "rck_category",
     cart: "rck_cart",
     shop_service_product: "rck_shop_service_product",
+    appointment: "rck_appointment",
+    appointment_map: "rck_appointment_map",
   },
   debugLog: true,
   rkitConfig: {

@@ -187,7 +187,7 @@ router.get(
       let arr3 = productResults.map((item, i) =>
         Object.assign({}, item, final_ids.product_ids[i])
       );
-      let arr4 = productResults.map((item, i) =>
+      let arr4 = serviceResults.map((item, i) =>
         Object.assign({}, item, final_ids.service_ids[i])
       );
 
